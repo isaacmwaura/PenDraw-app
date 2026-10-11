@@ -18,12 +18,7 @@ const profile = path.join(cache, `profile-${Date.now()}`);
 const browserPath = process.env.PENDRAW_BROWSER ?? "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe";
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const serveApp = sirv(path.join(app, "dist"), { single: true });
-const server = http.createServer(async (request, response) => {
-  if (request.url === "/project-plan.html") {
-    response.setHeader("Content-Type", "text/html; charset=utf-8");
-    response.end(await fs.readFile(path.join(root, "PROJECT_PLAN.html")));
-  } else serveApp(request, response);
-});
+const server = http.createServer((request, response) => serveApp(request, response));
 const hubSockets=new WebSocketServer({server});
 attachHub(hubSockets);
 let browser;
@@ -756,19 +751,6 @@ try {
   const screenshot = await rpc("Page.captureScreenshot", { format: "png" });
   await fs.writeFile(path.join(cache, "verified.png"), Buffer.from(screenshot.data, "base64"));
   await fs.writeFile(path.join(cache, "report.json"), JSON.stringify(report, null, 2));
-  await rpc("Page.navigate", { url: `http://127.0.0.1:${server.address().port}/project-plan.html` });
-  await waitFor("!!document.querySelector('#review-oct08')");
-  const sections = await evaluate(`(() => {
-    const top=document.querySelector('#execution-oct08').getBoundingClientRect().top+scrollY;
-    const review=document.querySelector('#review-oct08').getBoundingClientRect().top+scrollY;
-    return [{name:'roadmap',y:top,height:review-top},
-      {name:'device-review',y:review,height:document.documentElement.scrollHeight-review}];
-  })()`);
-  for (const section of sections) {
-    const rendered = await rpc("Page.captureScreenshot", { format: "png", captureBeyondViewport: true,
-      clip: { x: 0, y: section.y, width: 1280, height: section.height, scale: 1 } });
-    await fs.writeFile(path.join(cache, `${section.name}.png`), Buffer.from(rendered.data, "base64"));
-  }
   console.log(`Report: ${path.join(cache, "report.json")}`);
 } catch(error) {
   if(ws?.readyState===WebSocket.OPEN){try{console.log(await evaluate("JSON.stringify({selected:window.__pdApi?.getAppState().selectedElementIds,canvas:document.querySelector('.excalidraw canvas')?.getBoundingClientRect().toJSON(),els:window.__pdApi?.getSceneElements().map(e=>({id:e.id,type:e.type,x:e.x,y:e.y}))})"));const shot=await rpc("Page.captureScreenshot",{format:"png"});await fs.writeFile(path.join(cache,"failure.png"),Buffer.from(shot.data,"base64"));}catch{}}
