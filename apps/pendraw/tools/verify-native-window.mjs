@@ -29,8 +29,8 @@ async function launch(){
  assert(page,'Native WebView2 did not expose its test page');socket=new WebSocket(page.webSocketDebuggerUrl);await new Promise((resolve,reject)=>{socket.once('open',resolve);socket.once('error',reject)});
  socket.on('message',data=>{const r=JSON.parse(data);const entry=pending.get(r.id);if(!entry)return;pending.delete(r.id);if(r.error)entry.reject(new Error(JSON.stringify(r.error)));else entry.resolve(r.result)});
  await rpc('Runtime.enable');await rpc('Page.enable');
- await waitFor('!!window.__pdApi || !!document.querySelector("[aria-label=\"Bundled browser terms\"]")');
- if(await evaluate('!!document.querySelector("[aria-label=\"Bundled browser terms\"]")'))await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='Agree and open').click()");
+ await waitFor(`!!window.__pdApi || !!document.querySelector('[aria-label="Bundled browser terms"]')`);
+ if(await evaluate(`!!document.querySelector('[aria-label="Bundled browser terms"]')`))await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent==='Agree and open').click()");
  await waitFor('!!window.__pdApi && !!document.querySelector(".pd-save.saved")');
 }
 async function close(){const exited=new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve)});await invoke('close');await Promise.race([exited,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Native close did not exit the EXE')),6000))]);socket.close();socket=null;child=null}

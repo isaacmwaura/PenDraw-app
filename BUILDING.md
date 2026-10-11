@@ -37,7 +37,7 @@ Copy the built executable to a release folder as `PenDraw.exe`. From the reposit
 ./tools/package-webview.ps1 -Destination .cache/release/WebView2
 ```
 
-This downloads the pinned official Microsoft WebView2 fixed runtime, verifies its checksum and executable signature, and copies all runtime files beside the app. The app selects that bundled runtime before creating its window. On Windows 10 it grants the read/execute permissions Microsoft requires on this bundled folder. No runtime installer or administrator permission is normally needed in a user-owned folder. Use a local drive, not a network share.
+This downloads the pinned official Microsoft WebView2 fixed runtime, verifies its checksum and executable signature, and copies all runtime files beside the app. It also places Microsoft's unchanged `vcruntime140.dll` and `vcruntime140_1.dll` beside PenDraw.exe for compatibility with MSVC toolchain builds that import them. No C++ runtime installer is needed. The app selects the bundled browser engine before creating its window. On Windows 10 it grants the read/execute permissions Microsoft requires on this bundled folder. No runtime installer or administrator permission is normally needed in a user-owned folder. Use a local drive, not a network share.
 
 Include LICENSE, THIRD_PARTY_NOTICES.md and the entire licenses directory. Generate notices with `node tools/collect-notices.mjs` after dependencies are available. The Microsoft runtime is proprietary; preserve its terms, notices and first-run agreement screen when redistributing this package. Microsoft's redistribution terms are included in `licenses/Microsoft-WebView2/LICENSE.txt`.
 

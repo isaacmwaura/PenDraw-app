@@ -16,3 +16,9 @@ if (!$runtime) { throw 'WebView2 executable missing' }
 if ((Get-AuthenticodeSignature -FilePath $runtime.FullName).Status -ne 'Valid') { throw 'Microsoft runtime signature invalid' }
 New-Item -ItemType Directory -Force $Destination | Out-Null
 Copy-Item -Path (Join-Path $runtime.Directory.FullName '*') -Destination $Destination -Recurse -Force
+# Some MSVC toolchain builds import these DLLs. Supply Microsoft's unchanged
+# copies from the same official runtime package beside PenDraw.exe as well.
+$releaseFolder = (Get-Item -LiteralPath $Destination).Parent.FullName
+foreach ($dll in @('vcruntime140.dll', 'vcruntime140_1.dll')) {
+    Copy-Item -LiteralPath (Join-Path $runtime.Directory.FullName $dll) -Destination $releaseFolder -Force
+}

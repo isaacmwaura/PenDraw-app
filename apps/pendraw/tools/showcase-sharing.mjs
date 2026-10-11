@@ -33,8 +33,8 @@ try{
  const port=await reserve();
  native=spawn(exe,[],{windowsHide:true,stdio:'ignore',env:{...process.env,WEBVIEW2_USER_DATA_FOLDER:path.join(profiles,'native'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:`--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1 --remote-allow-origins=http://127.0.0.1:${port}`}});
  editor=await connect((await debugPage(port,'tauri.localhost')).webSocketDebuggerUrl);
- await editor.wait('!!window.__pdApi||!!document.querySelector("[aria-label=\"Bundled browser terms\"]")');
- if(await editor.evalJS('!!document.querySelector("[aria-label=\"Bundled browser terms\"]")')){await editor.click('Agree and open');check('complete portable package presents bundled runtime terms once');}
+ await editor.wait(`!!window.__pdApi||!!document.querySelector('[aria-label="Bundled browser terms"]')`);
+ if(await editor.evalJS(`!!document.querySelector('[aria-label="Bundled browser terms"]')`)){await editor.click('Agree and open');check('complete portable package presents bundled runtime terms once');}
  await editor.rpc('Emulation.setDeviceMetricsOverride',{width:1280,height:820,deviceScaleFactor:1,mobile:false});
  await editor.wait('!!window.__pdApi');
  assert.equal(await editor.evalJS('!!document.querySelector(".pd-status")'),false);
@@ -52,7 +52,7 @@ try{
  elements.push(base('rectangle',725,480,430,145,{backgroundColor:'#f1f3f5',roundness:{type:3}}));text('Same Wi-Fi • no account',750,508,24);text('Keep the Windows app open',750,554,20,'#5f6b7b');
  await editor.evalJS(`window.__pdApi.updateScene({elements:${JSON.stringify(elements)},appState:{scrollX:0,scrollY:0,zoom:{value:1}}})`);
  await editor.click('PenDraw menu');await editor.click('Settings');await editor.shot('settings-sharing');await editor.click('Start sharing');
- await editor.wait('!!document.querySelector("[aria-label=\"Sharing link\"]")&&document.querySelector(".pd-status")?.dataset.status==="connected"');
+ await editor.wait(`!!document.querySelector('[aria-label="Sharing link"]')&&document.querySelector('.pd-status')?.dataset.status==='connected'`);
  const info=await editor.evalJS('window.__TAURI_INTERNALS__.invoke("start_mirror")');
  const socketURL=new URL(info.socketUrl), key=socketURL.searchParams.get('key');
  const bookmark=`http://127.0.0.1:4000/?mirror&key=${key}`;
@@ -87,7 +87,7 @@ try{
  const oldSession=socketURL.searchParams.get('session');
  await editor.click('PenDraw menu');await editor.click('Settings');await editor.click('Stop sharing');
  await delay(300);await assert.rejects(()=>fetch(bookmark));check('Stop sharing closes the HTTP listener');
- await editor.click('Start sharing');await editor.wait('!!document.querySelector("[aria-label=\"Sharing link\"]")');
+ await editor.click('Start sharing');await editor.wait(`!!document.querySelector('[aria-label="Sharing link"]')`);
  const next=await editor.evalJS('window.__TAURI_INTERNALS__.invoke("start_mirror")');
  assert.equal(new URL(next.socketUrl).searchParams.get('key'),key);assert.notEqual(new URL(next.socketUrl).searchParams.get('session'),oldSession);
  const fresh=await fetch(bookmark);assert.equal(fresh.status,200);assert.notEqual(new URL(fresh.url).searchParams.get('session'),oldSession);
