@@ -8,9 +8,9 @@ Draw with three saved pens and a highlighter. Add shapes, text boxes and images.
 
 ## Download and open
 
-[Download PenDraw v0.2.3 for Windows](https://github.com/isaacmwaura/PenDraw-app/releases/download/v0.2.3/PenDraw-0.2.3.exe) · [Release notes and checksum](https://github.com/isaacmwaura/PenDraw-app/releases/tag/v0.2.3)
+[Download PenDraw v0.2.3 for Windows](https://github.com/isaacmwaura/PenDraw-app/releases/download/v0.2.3/PenDraw-0.2.3-windows.zip) · [Release notes and checksum](https://github.com/isaacmwaura/PenDraw-app/releases/tag/v0.2.3)
 
-Version 0.2.3 is a portable Windows executable: download it to a folder and open it. No installer is required. The desktop app uses Microsoft WebView2; install the [Evergreen WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if it is missing.
+Version 0.2.3 is a portable Windows executable: download the ZIP, extract it to a folder, and open `PenDraw-0.2.3.exe`. Keep the accompanying license files with it. No installer is required. The desktop app uses Microsoft WebView2; install the [Evergreen WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if it is missing.
 
 This release is not digitally signed. Windows may show an unrecognized-app warning because the download has not established a trusted reputation. Download only from this project's official release page and compare the SHA-256 checksum supplied with the release. A matching checksum confirms file identity, not that software is harmless. If you trust the download and SmartScreen offers **More info → Run anyway**, that allows this particular app to open. Do not disable Windows security. Smart App Control or an organization's policy may block it without that option; contact your administrator rather than bypassing policy. See [Microsoft's explanation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 
