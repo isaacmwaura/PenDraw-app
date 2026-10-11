@@ -1,0 +1,713 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.pd-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.pd-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #1b3a5c;
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+
+.pd-bar strong {
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.pd-mode {
+  background: #2e75b6;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pd-mode.mirror {
+  background: #375623;
+}
+
+.pd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.pd-dot.on {
+  background: #4ade80;
+}
+
+.pd-dot.off {
+  background: #f87171;
+}
+
+.pd-status {
+  font-size: 12px;
+  color: #bdd7ee;
+}
+
+.pd-save {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 62px;
+  text-align: right;
+}
+
+.pd-save.saving {
+  color: #fbbf24;
+}
+
+.pd-save.saved {
+  color: #86efac;
+}
+
+.pd-spacer {
+  flex: 1 1 auto;
+}
+
+.pd-btn {
+  background: #2e75b6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pd-btn:hover {
+  background: #3a86cf;
+}
+
+.pd-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pd-stroke {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #fff;
+}
+
+.pd-stroke input[type="range"] {
+  width: 120px;
+  accent-color: #4ade80;
+  cursor: pointer;
+}
+
+.pd-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+.pd-dot.warn {
+  background: #fbbf24;
+}
+
+.pd-dot.offline {
+  background: #94a3b8;
+}
+
+/* Settings dropdown */
+.pd-settings {
+  position: relative;
+}
+
+.pd-settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: 300px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  padding: 14px 16px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.pd-settings-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2e75b6;
+  margin-bottom: 10px;
+}
+
+.pd-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  margin: 8px 0;
+}
+
+.pd-settings-row.col {
+  flex-direction: column;
+  align-items: stretch;
+  cursor: default;
+}
+
+.pd-settings-label {
+  font-size: 12px;
+  color: #595959;
+  margin-bottom: 4px;
+}
+
+.pd-settings-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.pd-settings-note {
+  font-size: 12px;
+  color: #595959;
+  margin: 10px 0 0;
+  line-height: 1.4;
+}
+
+.pd-btn.ghost {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+}
+
+.pd-btn.active {
+  background: #4ade80;
+  color: #1b3a5c;
+}
+
+/* Free-form lasso overlay — sits above the canvas while lasso mode is on. */
+.pd-lasso {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.pd-lasso-path {
+  fill: rgba(46, 117, 182, 0.12);
+  stroke: #2e75b6;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+/* Desktop File menu + current-file name */
+.pd-filemenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-filename {
+  font-size: 12px;
+  color: #bdd7ee;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-filemenu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 170px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-menu-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #222;
+  cursor: pointer;
+}
+
+.pd-menu-item:hover {
+  background: #e8f4fb;
+}
+
+.pd-menu-sep {
+  height: 1px;
+  background: #e5e5e5;
+  margin: 4px 2px;
+}
+
+/* Unified selection context menu (opens on right-click / finger long-press). */
+.pd-selmenu {
+  position: fixed;
+  z-index: 20;
+  min-width: 190px;
+  padding: 5px;
+  background: #1b3a5c;
+  border: 1px solid #2e5a86;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+  color: #e8f0f8;
+  font-size: 14px;
+  user-select: none;
+}
+
+.pd-selmenu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-selmenu-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #8fb4d6;
+  padding: 4px 8px 2px;
+}
+
+.pd-selmenu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #e8f0f8;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pd-selmenu-item:hover {
+  background: #2e75b6;
+}
+
+.pd-selmenu-item.danger:hover {
+  background: #c0392b;
+}
+
+.pd-selmenu-ico {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 22px;
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+.pd-selmenu-sep {
+  height: 1px;
+  margin: 4px 6px;
+  background: #2e5a86;
+}
+
+.pd-selmenu-more {
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #9fc4e6;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pd-selmenu-more:hover {
+  background: #21456a;
+}
+
+/* Transient confirmation toast (e.g. "PNG copied to clipboard"). */
+.pd-flash {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 8px 16px;
+  background: #1b3a5c;
+  color: #e8f0f8;
+  border: 1px solid #2e5a86;
+  border-radius: 20px;
+  font-size: 13px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* Barrel-button lasso loop, drawn in viewport (client) coordinates. */
+.pd-pen-lasso {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 13;
+  pointer-events: none;
+}
+
+/* Aesthetic on/off switch for "Lock to presenter" */
+.pd-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pd-switch-label {
+  font-size: 13px;
+}
+
+.pd-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.pd-switch .track {
+  width: 40px;
+  height: 22px;
+  border-radius: 22px;
+  background: #64748b;
+  position: relative;
+  transition: background 0.15s ease;
+  flex: 0 0 auto;
+}
+
+.pd-switch input:checked + .track {
+  background: #4ade80;
+}
+
+.pd-switch .thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: left 0.15s ease;
+}
+
+.pd-switch input:checked + .track .thumb {
+  left: 20px;
+}
+
+/* Floating badge shown on the mirror when in free-look mode */
+.pd-freelook-badge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: #7a3d18;
+  color: #fff;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Prominent disconnect / reconnect popup */
+.pd-banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  max-width: 92%;
+}
+
+.pd-banner.err {
+  background: #fde2e2;
+  border: 1px solid #c00000;
+  color: #7a1010;
+}
+
+.pd-banner.warn {
+  background: #fff3cd;
+  border: 1px solid #d4713a;
+  color: #7a3d18;
+}
+
+.pd-banner-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pd-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-banner-text strong {
+  font-size: 14px;
+}
+
+.pd-banner .pd-btn {
+  white-space: nowrap;
+}
+
+/* Turn-to-text preview — dashed boxes around each recognized block + a confirm
+   bar. The boxes are non-interactive; only the bar takes clicks. */
+.pd-textpreview-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 11;
+  pointer-events: none;
+}
+
+.pd-textpreview-box {
+  fill: rgba(74, 222, 128, 0.12);
+  stroke: #22a06b;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+.pd-textpreview-num {
+  fill: #22a06b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Each block is tappable to include/exclude it from the conversion. */
+.pd-tp-group {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.pd-tp-label {
+  fill: #167a52;
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 3px;
+}
+
+/* Excluded block: red, dashed, "kept as ink". */
+.pd-textpreview-box.excluded {
+  fill: rgba(192, 57, 43, 0.08);
+  stroke: #c0392b;
+  stroke-dasharray: 3 3;
+}
+
+.pd-textpreview-num.excluded {
+  fill: #c0392b;
+}
+
+.pd-tp-label.excluded {
+  fill: #c0392b;
+  font-style: italic;
+}
+
+.pd-tp-hint {
+  color: #8fb4d6;
+  font-size: 12px;
+}
+
+.pd-textpreview-bar {
+  position: absolute;
+  z-index: 12;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1b3a5c;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+}
+
+/* PenDraw owns the editor ribbon; the mirror keeps the engine's native UI. */
+.pd-modern .excalidraw .App-menu_top__left,.pd-modern .excalidraw .shapes-section{display:none!important}
+.pd-modern{font-family:Segoe UI,system-ui,sans-serif;background:#f7f9fc;color:#24324a}
+.pd-modern .pd-bar{gap:12px;flex-wrap:wrap;min-height:46px;background:#19354f}
+.pd-modern .pd-filename{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd-ribbon-tabs{display:flex;align-items:center;gap:4px;padding:0 14px;background:#f0f4fa;border-bottom:1px solid #d7e0ec;flex-shrink:0}
+.pd-ribbon-tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:11px 18px;color:#42536f;font:600 14px Segoe UI;cursor:pointer}
+.pd-ribbon-tabs button[aria-selected=true]{color:#1d58af;border-bottom-color:#1d58af;background:#fff}
+.pd-ribbon-tabs .pd-about-button{margin-left:auto;font-weight:400}
+.pd-ribbon-panel{background:#fff;display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 14px;border-bottom:1px solid #dce3ed;flex-shrink:0;max-height:32vh;overflow:auto}
+.pd-ribbon-panel[hidden]{display:none!important}
+.pd-ribbon-panel button{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid #dbe2ec;background:#fafbfd;border-radius:6px;padding:7px 7px;color:#263956;font:12px Segoe UI;min-height:36px;cursor:pointer}
+.pd-ribbon-panel button[aria-pressed=true]{background:#e5efff;border-color:#729fea;color:#1754ae}
+.pd-ribbon-panel button:hover{background:#eef4fd}
+.pd-ribbon-panel button:disabled{opacity:.5;cursor:default}
+.pd-ribbon-group{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border-right:1px solid #dce3ed;padding-right:12px}
+.pd-ribbon-panel label{display:flex;align-items:center;gap:6px;font-size:12px}
+.pd-ribbon-panel select,.pd-ribbon-panel input[type=number]{border:1px solid #dbe2ec;border-radius:4px;padding:6px;background:#fff;color:#24324a;font:12px Segoe UI;max-width:125px}
+.pd-ribbon-panel input[type=color]{width:32px;height:30px;padding:2px;border:1px solid #dbe2ec;border-radius:5px;background:#fff}
+.pd-ribbon-panel input[type=range]{width:85px;accent-color:#2862be}
+.pd-ribbon-panel input[type=number]{width:62px}
+.pd-pens button{flex-direction:column;min-width:42px;padding:5px 8px}
+.pd-pens i{display:block;height:22px;border-radius:3px 3px 5px 5px}
+.pd-pens small{font-size:10px}.pd-ribbon-note{font-size:12px;color:#64728b;max-width:330px;line-height:1.4}
+.pd-guides{position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.5;mix-blend-mode:multiply}
+.pd-guides.ruled{background-image:linear-gradient(to bottom,transparent calc(100% - 1px),#b6cce8 1px)}
+.pd-guides.grid{background-image:linear-gradient(to bottom,transparent calc(100% - 1px),#b6cce8 1px),linear-gradient(to right,transparent calc(100% - 1px),#b6cce8 1px)}
+.pd-guides.none{background-image:none}
+.pd-drawing-hint{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:18;pointer-events:none;padding:8px 14px;background:#19354fee;color:#fff;border-radius:6px;font:13px Segoe UI;max-width:80%;text-align:center}
+.pd-modal-shade{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#14213366;padding:20px;font-family:Segoe UI,system-ui,sans-serif}
+.pd-dialog{background:white;border-radius:12px;box-shadow:0 18px 80px #0004;padding:24px;width:min(600px,100%);max-height:85vh;overflow:auto;color:#24324a;font-size:14px;line-height:1.5}
+.pd-dialog h2{margin:0 0 12px;font-size:20px}.pd-dialog pre{white-space:pre-wrap;font:12px Consolas;line-height:1.6}.pd-dialog label{display:flex;flex-direction:column;gap:6px;margin:12px 0}.pd-dialog textarea{min-height:85px;font:14px Segoe UI}.pd-dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.pd-dialog button{margin-top:12px}
+@media(pointer:coarse){.pd-ribbon-panel button{min-height:44px;min-width:44px}.pd-ribbon-panel input,.pd-ribbon-panel select{min-height:36px}}
+@media(max-width:700px){.pd-modern .pd-bar{font-size:12px;padding:6px 8px;gap:6px}.pd-mode{display:none}.pd-ribbon-panel{padding:8px;gap:8px;max-height:38vh}.pd-ribbon-group{border:0;padding:0}.pd-ribbon-tabs{padding:0 6px}.pd-ribbon-tabs button{padding:10px 12px}.pd-ribbon-note{max-width:100%}.pd-filename{max-width:140px!important}}
+/* Device appearance shared by the app chrome and the drawing engine. */
+:root{--pd-bg:#eef3f9;--pd-surface:#fff;--pd-panel:#f5f7fb;--pd-text:#22324a;--pd-muted:#52617a;--pd-border:#cbd5e3;--pd-accent:#225aba;--pd-selected:#e4eeff;--pd-hover:#eaf0f9;--pd-success:#167344;--pd-warning:#855300;--pd-guide:#92adc9;--pd-shadow:0 12px 40px #172d4b26;--pd-preview:#126f49;--pd-excluded:#ad2828;--pd-halo:#fff}
+:root[data-theme=dark]{--pd-bg:#111820;--pd-surface:#1c2532;--pd-panel:#151e2a;--pd-text:#e8eef7;--pd-muted:#b5c2d4;--pd-border:#43516a;--pd-accent:#9bc0ff;--pd-selected:#2b4263;--pd-hover:#2a374b;--pd-success:#8de0b1;--pd-warning:#ffcf80;--pd-guide:#7391b8;--pd-shadow:0 12px 40px #0007;--pd-preview:#8de0b1;--pd-excluded:#ffacac;--pd-halo:#121822}
+body{background:var(--pd-bg);color:var(--pd-text)}
+.pd-root{height:100dvh;overflow:hidden;background:var(--pd-bg);color:var(--pd-text);font-family:"Segoe UI",system-ui,sans-serif}
+.pd-bar,.pd-modern .pd-bar{background:var(--pd-panel);color:var(--pd-text);border-bottom:1px solid var(--pd-border);padding:6px 12px;gap:10px;min-height:64px;flex-wrap:nowrap;position:relative;z-index:40}
+.pd-brand{display:flex;align-items:center;gap:9px;align-self:stretch;min-width:108px;user-select:none;touch-action:none;cursor:default}
+.pd-brand strong{font-size:19px;letter-spacing:-.4px;font-weight:700}
+.pd-brand-mark{display:grid;place-items:center;background:var(--pd-accent);color:var(--pd-surface);width:30px;height:30px;border-radius:10px;font-size:24px}
+.pd-mode{background:var(--pd-selected);color:var(--pd-accent);border:1px solid var(--pd-border);font-size:11px;padding:4px 9px}
+.pd-filename,.pd-modern .pd-filename{color:var(--pd-text);font-size:13px;max-width:200px;min-width:0}
+.pd-status{color:var(--pd-muted)}.pd-dot{flex-shrink:0;width:8px;height:8px}
+.pd-save{color:var(--pd-muted);white-space:nowrap;font-size:11px}.pd-save.saved{color:var(--pd-success)}.pd-save.saving{color:var(--pd-warning)}
+.pd-btn{min-height:44px;border-radius:10px;border:1px solid transparent;background:#225aba;color:#fff;font:600 13px "Segoe UI",system-ui,sans-serif;padding:8px 12px;cursor:pointer;touch-action:manipulation}
+.pd-btn:hover{background:#1b4b9e}.pd-btn.ghost{background:transparent;color:var(--pd-text);border-color:var(--pd-border)}
+.pd-btn.ghost:hover,.pd-btn.ghost.active,.pd-btn.ghost[aria-expanded=true]{background:var(--pd-selected);color:var(--pd-accent);border-color:var(--pd-accent)}
+.pd-window-controls{display:flex;align-items:center;gap:2px;flex-shrink:0;margin-right:-6px}
+.pd-title-button{display:grid;place-items:center;min-width:44px;height:44px;border:0;border-radius:9px;background:transparent;color:var(--pd-text);font:22px "Segoe UI",sans-serif;cursor:pointer;touch-action:manipulation}
+.pd-title-button:hover,.pd-title-button[aria-pressed=true]{background:var(--pd-selected);color:var(--pd-accent)}.pd-title-button.pd-close:hover{background:#ad2828;color:#fff}.pd-title-button:disabled{color:var(--pd-muted);cursor:default}
+.pd-spacer{min-width:0;align-self:stretch;touch-action:none}
+.pd-filemenu-panel,.pd-settings-panel{background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-border);box-shadow:var(--pd-shadow);border-radius:16px;top:calc(100% + 10px);max-height:calc(100dvh - 95px);overflow:auto;padding:10px}
+.pd-filemenu-panel{min-width:260px}.pd-settings-panel{width:340px;padding:20px}
+.pd-menu-item{min-height:44px;border-radius:9px;font:14px "Segoe UI",system-ui,sans-serif;color:var(--pd-text);padding:10px 12px;touch-action:manipulation}
+.pd-menu-item:hover{background:var(--pd-hover)}.pd-menu-heading{font-size:11px;color:var(--pd-muted);padding:8px 12px;letter-spacing:.7px;text-transform:uppercase;font-weight:700}.pd-menu-sep{background:var(--pd-border);margin:8px 4px}
+.pd-settings-title{color:var(--pd-accent);margin-top:18px}.pd-appearance-settings .pd-settings-title{margin-top:0}
+.pd-settings-row{min-height:44px;font-size:14px;gap:12px}.pd-settings-row.col{align-items:stretch}.pd-settings-row input[type=checkbox],.pd-ribbon-check input{width:20px;height:20px;accent-color:#225aba;flex-shrink:0}
+.pd-settings-note,.pd-settings-label,.pd-ribbon-note{color:var(--pd-muted)}
+.pd-settings-input,.pd-settings-panel select{width:100%;min-height:44px;border:1px solid var(--pd-border);border-radius:8px;background:var(--pd-panel);color:var(--pd-text);padding:8px 10px;font:14px "Segoe UI",sans-serif}
+.pd-ribbon-tabs{background:var(--pd-panel);border-color:var(--pd-border);padding:0 12px;gap:6px}
+.pd-ribbon-tabs button{min-height:48px;color:var(--pd-muted);border-radius:10px 10px 0 0;font-family:inherit}
+.pd-ribbon-tabs button[aria-selected=true]{background:var(--pd-surface);color:var(--pd-accent);border-bottom-color:var(--pd-accent)}
+.pd-ribbon-panel{background:var(--pd-surface);color:var(--pd-text);border-color:var(--pd-border);padding:12px;gap:10px}
+.pd-ribbon-panel button{min-width:44px;min-height:44px;padding:8px 10px;font-size:13px;background:var(--pd-panel);color:var(--pd-text);border-color:var(--pd-border);border-radius:9px;touch-action:manipulation}
+.pd-ribbon-panel button:hover{background:var(--pd-hover)}.pd-ribbon-panel button[aria-pressed=true]{background:var(--pd-selected);color:var(--pd-accent);border-color:var(--pd-accent)}
+.pd-ribbon-panel button:disabled{opacity:1;color:var(--pd-muted);background:var(--pd-panel)}.pd-menu-item:disabled{color:var(--pd-muted);cursor:default}
+.pd-ribbon-group{border-color:var(--pd-border);gap:8px}.pd-ribbon-panel label{font-size:12px;min-height:44px}
+.pd-ribbon-panel select,.pd-ribbon-panel input[type=number],.pd-ribbon-panel input[type=color]{min-height:44px;background:var(--pd-panel);color:var(--pd-text);border-color:var(--pd-border);border-radius:8px;font-size:13px}
+.pd-ribbon-panel input[type=color]{width:44px}.pd-ribbon-panel input[type=range]{height:44px;accent-color:#3976d8}.pd-pens button{min-width:48px}.pd-pens i{border:1px solid #8c99ad}.pd-pens small{font-size:11px}
+.pd-modern .excalidraw .default-sidebar-trigger{display:none!important}
+.pd-guides{mix-blend-mode:normal}.pd-guides.ruled{background-image:linear-gradient(to bottom,transparent calc(100% - 1px),var(--pd-guide) 1px)}
+.pd-guides.grid{background-image:linear-gradient(to bottom,transparent calc(100% - 1px),var(--pd-guide) 1px),linear-gradient(to right,transparent calc(100% - 1px),var(--pd-guide) 1px)}
+.pd-dialog{background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-border);box-shadow:var(--pd-shadow)}.pd-dialog a{color:var(--pd-accent)}.pd-dialog summary{min-height:44px;cursor:pointer}
+.pd-dialog textarea,.pd-dialog input,.pd-dialog select{background:var(--pd-panel);color:var(--pd-text);border:1px solid var(--pd-border);border-radius:8px;padding:8px;min-height:44px}
+.pd-selmenu,.pd-flash,.pd-textpreview-bar,.pd-drawing-hint{background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-border);box-shadow:var(--pd-shadow)}
+.pd-selmenu-item,.pd-selmenu-more{color:var(--pd-text);min-height:44px}.pd-selmenu-label,.pd-tp-hint{color:var(--pd-muted)}.pd-selmenu-item:hover,.pd-selmenu-more:hover{background:var(--pd-hover)}.pd-selmenu-item.danger:hover{background:#ad2828;color:white}.pd-selmenu-sep{background:var(--pd-border)}
+.pd-textpreview-box{stroke:var(--pd-preview)}.pd-textpreview-num,.pd-tp-label{fill:var(--pd-preview)}.pd-tp-label{stroke:var(--pd-halo)}.pd-textpreview-box.excluded{stroke:var(--pd-excluded)}.pd-textpreview-num.excluded,.pd-tp-label.excluded{fill:var(--pd-excluded)}
+.pd-lasso-path{stroke:var(--pd-accent)}.pd-stroke{color:var(--pd-text)}.pd-switch input:focus-visible+.track{outline:3px solid var(--pd-accent);outline-offset:4px}
+:root[data-theme=dark] .pd-banner.err{background:#3c2127;border-color:#ffacac;color:#ffd9df}:root[data-theme=dark] .pd-banner.warn{background:#392c1c;border-color:#ffcf80;color:#ffe2b8}
+.pd-window-error{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);max-width:90%;display:flex;gap:12px;align-items:center;padding:14px;z-index:300;background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-excluded);border-radius:12px;box-shadow:var(--pd-shadow)}
+.pd-root :focus-visible{outline:3px solid var(--pd-accent);outline-offset:2px}
+@media(max-width:1100px){.pd-bar .pd-mode{display:none}.pd-bar .pd-save{max-width:130px;white-space:normal}.pd-modern .pd-filename{max-width:120px}}
+@media(max-width:850px){.pd-bar .pd-status,.pd-bar .pd-dot{display:none}.pd-brand strong{font-size:17px}.pd-brand-mark{width:26px;height:26px}.pd-bar,.pd-modern .pd-bar{gap:6px;padding:6px 8px}}
+@media(max-width:600px){.pd-bar .pd-filename,.pd-bar .pd-save{display:none}.pd-filemenu>button span{display:none}.pd-filemenu>button{min-width:44px;padding:8px}.pd-settings>button{font-size:0;width:44px;padding:8px}.pd-settings>button::before{content:'⚙';font-size:22px}.pd-window-controls button[aria-label=Minimize],.pd-window-controls button[aria-label=Maximize],.pd-window-controls button[aria-label="Restore window"]{display:none}.pd-brand{min-width:100px}.pd-window-controls{margin:0}.pd-ribbon-panel{max-height:36dvh}.pd-settings-panel{position:fixed;right:8px;top:70px;width:min(340px,calc(100vw - 16px))}.pd-filemenu-panel{position:fixed;left:8px;top:70px;width:min(280px,calc(100vw - 16px))}.pd-ribbon-tabs{padding:0 8px}.pd-textpreview-bar{flex-wrap:wrap;width:calc(100% - 20px)}.pd-banner{flex-wrap:wrap;width:calc(100% - 20px)}}
+.pd-mode.mirror{background:var(--pd-selected);color:var(--pd-accent)}
+@media(max-width:850px){.pd-bar .pd-stroke{display:none}}
+@media(max-width:600px){.pd-bar .pd-switch-label{display:none}.pd-bar .pd-switch{min-width:44px;min-height:44px;justify-content:center}}
+
+/* Compact ribbon: smaller artwork, generous touch targets, one scrolling row. */
+.pd-compact .pd-compact-bar{height:36px;min-height:36px;padding:0 6px;gap:4px;background:var(--pd-panel);flex-wrap:nowrap}
+.pd-compact .pd-brand{min-width:0;gap:6px;align-self:center;margin:0 14px 0 6px}.pd-compact .pd-brand strong{font-size:14px;letter-spacing:-.2px}.pd-app-icon{width:22px;height:22px;flex-shrink:0}
+.pd-icon{width:18px;height:18px;flex-shrink:0}.pd-compact .pd-bar .pd-btn,.pd-compact .pd-title-button,.pd-collapse{height:34px;min-height:34px;min-width:34px;padding:5px 8px;border:0;background:transparent;color:var(--pd-text);border-radius:5px;font:12px 'Segoe UI',sans-serif;cursor:pointer}
+.pd-compact .pd-bar .pd-btn:hover,.pd-collapse:hover{background:var(--pd-hover)}.pd-compact .pd-filemenu>button{display:flex;align-items:center;gap:6px}
+.pd-compact .pd-ribbon-tabs{align-self:stretch;border:0;background:none;padding:0;gap:0}.pd-compact .pd-ribbon-tabs button{height:36px;min-height:36px;min-width:50px;padding:0 12px;border-radius:0;font-size:12px;border-bottom-width:2px}
+.pd-collapse[aria-expanded=false] .pd-icon{transform:rotate(180deg)}.pd-compact .pd-filename{font-size:11px;max-width:180px;margin-left:6px}.pd-compact .pd-status,.pd-compact .pd-save{font-size:11px;white-space:nowrap}.pd-compact .pd-dot{width:6px;height:6px}.pd-compact .pd-window-controls{margin:0}.pd-compact .pd-bar .pd-save{max-width:180px}
+.pd-ribbon-body{position:relative;z-index:35;flex-shrink:0;min-height:0}.pd-compact .pd-ribbon-panel{height:48px;min-height:48px;max-height:none;padding:3px 10px;gap:10px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.pd-compact .pd-ribbon-group{flex-wrap:nowrap;gap:3px;padding-right:10px;flex-shrink:0}.pd-compact .pd-ribbon-panel button{min-height:36px;height:36px;min-width:36px;padding:5px 8px;border:1px solid transparent;background:transparent;border-radius:5px;font-size:12px;white-space:nowrap;flex-shrink:0}.pd-compact .pd-ribbon-panel button:hover{background:var(--pd-hover)}.pd-compact .pd-ribbon-panel button[aria-pressed=true]{background:var(--pd-selected);border-color:var(--pd-accent)}
+.pd-compact .pd-ribbon-panel label{min-height:36px;white-space:nowrap;font-size:12px}.pd-compact .pd-ribbon-panel select,.pd-compact .pd-ribbon-panel input[type=color]{min-height:32px;height:32px;border-radius:5px;font-size:12px}.pd-compact .pd-ribbon-panel input[type=range]{height:32px}.pd-compact .pd-ribbon-panel input[type=color]{width:32px}.pd-compact .pd-pens button{min-width:36px}.pd-pen svg{width:20px;height:30px;flex-shrink:0}
+.pd-ribbon-popover{position:absolute;top:100%;left:12px;width:340px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 110px);overflow:auto;padding:16px;background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-border);box-shadow:var(--pd-shadow);border-radius:10px;font-size:12px}.pd-ribbon-popover h3{font-size:14px;margin:0 0 12px}.pd-ribbon-popover label{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px}.pd-ribbon-popover input,.pd-ribbon-popover select{color:var(--pd-text);background:var(--pd-panel);border:1px solid var(--pd-border);border-radius:4px;min-height:32px;max-width:150px;padding:3px}.pd-ribbon-popover input[type=color]{width:40px}.pd-ribbon-popover input[type=range]{accent-color:var(--pd-accent)}.pd-ribbon-popover .pd-ribbon-group{display:block;border:0;padding:0}.pd-ribbon-popover button{color:var(--pd-text);background:var(--pd-panel);border:1px solid var(--pd-border);border-radius:5px;min-height:36px;padding:5px 10px}
+.pd-settings-dialog{position:relative!important;top:auto!important;left:auto!important;right:auto!important;width:min(380px,calc(100vw - 24px))!important;max-height:calc(100dvh - 32px);overflow:auto}.pd-settings-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.pd-settings-heading h2{font-size:18px;margin:0}.pd-settings-heading button{min-width:36px}.pd-settings-dialog .pd-settings-row{font-size:13px}.pd-settings-dialog .pd-settings-note{font-size:12px}.pd-compact .pd-filemenu-panel{top:calc(100% + 4px);border-radius:10px;max-height:calc(100dvh - 48px)}
+.pd-focus .pd-compact-bar{position:absolute;inset:8px 8px auto;z-index:40;background:transparent;border:0;pointer-events:none}.pd-focus .pd-compact-bar>*{display:none}.pd-focus .pd-compact-bar>.pd-filemenu,.pd-focus .pd-compact-bar>.pd-window-controls{display:flex;pointer-events:auto;background:var(--pd-surface);border:1px solid var(--pd-border);border-radius:8px;box-shadow:var(--pd-shadow)}.pd-focus .pd-compact-bar>.pd-window-controls{margin-left:auto}.pd-focus .pd-focus-tools{position:absolute;top:8px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 220px);z-index:38;display:flex;gap:4px;align-items:flex-start}.pd-focus-tools .pd-ribbon-panel{border:1px solid var(--pd-border);border-radius:8px;box-shadow:var(--pd-shadow);height:44px;min-height:44px;padding:3px 5px;gap:3px}.pd-focus-tools .pd-ribbon-group{border:0;padding-right:3px}.pd-focus-tools .pd-ribbon-panel>.pd-ribbon-group:last-child{display:none}.pd-focus-toggle{background:var(--pd-surface);color:var(--pd-text);border:1px solid var(--pd-border);border-radius:8px;min-width:34px;min-height:44px;padding:4px;cursor:pointer}.pd-focus-tools .pd-ribbon-popover{left:0;max-height:calc(100dvh - 70px)}
+@media(pointer:coarse){.pd-compact .pd-compact-bar{height:44px;min-height:44px}.pd-compact .pd-bar button,.pd-compact .pd-ribbon-tabs button,.pd-compact .pd-ribbon-panel button{min-width:44px;min-height:44px;height:44px}.pd-compact .pd-ribbon-tabs button{padding:0 12px}.pd-compact .pd-ribbon-panel{height:52px;min-height:52px}.pd-compact .pd-ribbon-panel input,.pd-compact .pd-ribbon-panel select{min-height:36px}.pd-focus-tools .pd-ribbon-panel{height:52px;min-height:52px}.pd-focus-toggle{min-width:44px;min-height:52px}}
+@media(max-width:850px){.pd-compact .pd-status,.pd-compact .pd-dot{display:none}.pd-compact .pd-brand{margin-right:8px}.pd-compact .pd-filename{max-width:110px}.pd-compact .pd-bar .pd-save{max-width:100px;overflow:hidden;text-overflow:ellipsis}}
+@media(max-width:600px){.pd-compact .pd-brand{display:none}.pd-compact .pd-bar .pd-filename,.pd-compact .pd-bar .pd-save{display:none}.pd-compact .pd-ribbon-tabs{padding:0}.pd-compact .pd-ribbon-tabs button{padding:0 10px}.pd-compact .pd-filemenu-panel{position:fixed;left:8px;top:42px}.pd-focus .pd-filemenu-panel{top:52px}.pd-focus .pd-focus-tools{top:54px;max-width:calc(100vw - 16px);width:max-content}.pd-compact .pd-ribbon-panel{padding:3px 6px}}
+@media(pointer:coarse){.pd-compact .pd-bar .pd-btn,.pd-compact .pd-title-button,.pd-compact .pd-collapse{min-width:44px;min-height:44px;height:44px}}
+
+/* October feedback: visible ink swatches and centered drawing tools. */
+.pd-compact .pd-ribbon-panel{justify-content:safe center}
+.pd-pen-slot{display:flex;align-items:center;border:1px solid var(--pd-border);border-radius:7px;overflow:hidden;flex-shrink:0}
+.pd-compact .pd-pen-slot .pd-pen{display:flex;flex-direction:row;gap:6px}
+.pd-compact .pd-pen-slot .pd-pen-options{min-width:28px;padding:3px}
+.pd-pen-color{width:23px!important;height:23px!important;border-radius:50%!important;box-shadow:inset 0 0 0 1px #8894a866}
+.pd-group-name{font-size:11px;color:var(--pd-muted);margin-right:4px}
+.pd-compact button.pd-filename{border:0;background:transparent;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:4px;padding:4px 8px}
+.pd-compact button.pd-filename:hover{background:var(--pd-hover)}
+.pd-textbox-draft{position:fixed;border:2px dashed var(--pd-accent);background:#729fea15;pointer-events:none;z-index:80}
+.pd-compact .pd-ribbon-popover{left:50%;transform:translateX(-50%)}
+.pd-dot.off,.pd-dot.offline{background:#cf3838}
+.pd-focus .pd-shapes{display:none}
+@media(pointer:coarse){.pd-compact .pd-pen-slot .pd-pen-options{min-width:44px}}
+
+.pd-bucket-target{position:absolute;inset:0;z-index:12;touch-action:none;cursor:crosshair}

@@ -1,0 +1,52 @@
+name: Windows build and verification
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      CARGO_BUILD_JOBS: '2'
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.cache/native-target
+      RUSTFLAGS: --remap-path-prefix=${{ github.workspace }}=/source --remap-path-prefix=C:/Users/runneradmin=/builder --remap-path-prefix=C:\Users\runneradmin=/builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:browser
+      - run: cargo test --release --locked -j 2 --lib
+        working-directory: apps/pendraw/src-tauri
+      - run: npx tauri build --no-bundle --ci -- --locked -j 2
+        working-directory: apps/pendraw
+      - run: npm run test:native-window
+      - name: Package release
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .cache/release | Out-Null
+          Copy-Item .cache/native-target/release/PenDraw.exe .cache/release/PenDraw-0.2.3.exe
+          $hash = (Get-FileHash .cache/release/PenDraw-0.2.3.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  PenDraw-0.2.3.exe" | Set-Content .cache/release/PenDraw-0.2.3.exe.sha256
+          node tools/collect-notices.mjs
+          Copy-Item LICENSE .cache/release/LICENSE
+          Copy-Item THIRD_PARTY_NOTICES.md .cache/release/THIRD_PARTY_NOTICES.md
+          Copy-Item -Recurse licenses .cache/release/licenses
+          $bytes = [IO.File]::ReadAllBytes('.cache/release/PenDraw-0.2.3.exe')
+          foreach ($encoding in @([Text.Encoding]::ASCII, [Text.Encoding]::Unicode)) {
+            $text = $encoding.GetString($bytes)
+            if ($text -match '(?i)C:[/\\]Users[/\\]|issom|For Claude|\.codex') { throw 'Private build path found in binary' }
+          }
+          Compress-Archive -Path .cache/release/* -DestinationPath .cache/PenDraw-0.2.3-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PenDraw-0.2.3-windows
+          path: |
+            .cache/release/
+            .cache/PenDraw-0.2.3-windows.zip
