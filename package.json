@@ -1,7 +1,7 @@
 {
   "name": "pendraw-monorepo",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "PenDraw - pen-first whiteboard on Excalidraw with live LAN mirror",
   "license": "MIT",
   "workspaces": [

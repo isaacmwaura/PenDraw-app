@@ -1,4 +1,5 @@
 import {useDialogFocus} from '../components/useDialogFocus';
+import {invoke} from '@tauri-apps/api/core';
 import DrawingTools from '../drawing/DrawingTools';
 import {loadPens} from '../components/penPresets';
 import {FONT_FAMILY,getCommonBounds} from '@excalidraw/excalidraw';
@@ -52,6 +53,9 @@ export default function Editor() {
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const desktop = useMemo(() => isDesktopApp(), []);
   const [syncPrefs, setSyncPrefs] = useState<SyncPrefs>(() => loadSyncPrefs(desktop));
+  const [sharing,setSharing]=useState<{links:string[];socketUrl:string}|null>(null);
+  const [sharingBusy,setSharingBusy]=useState(false);
+  const [sharingError,setSharingError]=useState('');
   const { pushLocalChange, status, reconnectNow, disconnectNow } = usePeerSync(apiRef, "editor", false, {
     enabled: syncPrefs.enabled,
     url: syncPrefs.enabled ? wsUrlFromAddress(syncPrefs.address) : undefined,
@@ -60,6 +64,17 @@ export default function Editor() {
     setSyncPrefs(p);
     saveSyncPrefs(p);
   }, []);
+  const startSharing=async()=>{
+    setSharingBusy(true);setSharingError('');
+    try { const info=await invoke<{links:string[];socketUrl:string}>('start_mirror');setSharing(info);onSyncPrefs({enabled:true,address:info.socketUrl}); }
+    catch(error){setSharingError(String(error));}
+    finally{setSharingBusy(false);}
+  };
+  const stopSharing=async()=>{
+    setSharingBusy(true);setSharingError('');disconnectNow();onSyncPrefs({enabled:false,address:''});
+    try{await invoke('stop_mirror');setSharing(null);}catch(error){setSharingError(String(error));}
+    finally{setSharingBusy(false);}
+  };
   const [everConnected, setEverConnected] = useState(false);
   const [lasso, setLasso] = useState(false);
   const [ribbonState,setRibbonState]=useState<any>(null);
@@ -101,11 +116,12 @@ export default function Editor() {
   // Desktop file management (New/Open/Save/Save As + dirty tracking).
   const beforeReplace = useCallback(() => {
     disconnectNow();
+    if(sharing){void invoke('stop_mirror').catch(error=>setSharingError(String(error)));setSharing(null);}
     if (syncPrefs.enabled) {
       onSyncPrefs({ ...syncPrefs, enabled: false });
       showFlash("New/Open starts a local board. Sharing is now off.");
     }
-  }, [disconnectNow, syncPrefs, onSyncPrefs, showFlash]);
+  }, [disconnectNow, syncPrefs, onSyncPrefs, showFlash, sharing]);
   const fm = useFileManager(apiRef, desktop, beforeReplace);
 
   // Apply Excalidraw's built-in pen mode (finger-draw rejection) when toggled.
@@ -389,7 +405,7 @@ export default function Editor() {
   return (
     <div className={"pd-root pd-modern pd-compact"+(appearance.fullscreen?" pd-focus":"")}>
       <RenameDialog open={renaming} value={newName} onChange={setNewName} onClose={()=>setRenaming(false)} onConfirm={async()=>{if(await fm.onRename(newName))setRenaming(false)}}/>
-      <SettingsMenu open={settings} onClose={()=>setSettings(false)} onQuality={()=>setQuality(true)} prefs={syncPrefs} onChange={onSyncPrefs} desktop={desktop} penMode={penMode} onPenMode={setPenMode}/>
+      <SettingsMenu open={settings} onClose={()=>setSettings(false)} onQuality={()=>setQuality(true)} prefs={syncPrefs} onChange={onSyncPrefs} desktop={desktop} penMode={penMode} onPenMode={setPenMode} sharing={sharing} sharingBusy={sharingBusy} sharingError={sharingError} onStartSharing={startSharing} onStopSharing={stopSharing}/>
       <Ribbon headerStart={<><FileMenu fm={fm} desktop={desktop} onSettings={()=>setSettings(true)} onLibrary={()=>apiRef.current?.toggleSidebar({name:"default",tab:"library",force:true})} onAbout={()=>setAbout(true)} onExport={onExport} onOpenBackup={onOpenBackup} onBackup={onBackup}/><Brand/></>}
         headerEnd={<><span className="pd-spacer"/><button className="pd-filename" aria-label="Rename drawing" disabled={fm.busy} title="Rename drawing" onClick={()=>{setNewName(fm.fileName??'Untitled');setRenaming(true)}}>{fm.fileName??"Untitled"}{fm.dirty?" ●":""}</button>{syncPrefs.enabled&&<><span className={"pd-dot "+dotClass}/><span className="pd-status" data-status={status}>{connectionText}</span></>}<span className="pd-save" title="Automatic recovery on this device. Use Menu → Save to save a file." ref={saveRef}/><WindowControls/></>}
         apiRef={apiRef} state={ribbonState} desktop={desktop} lasso={lasso} onLasso={toggleLasso}

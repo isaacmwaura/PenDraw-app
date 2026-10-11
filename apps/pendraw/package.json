@@ -1,7 +1,7 @@
 {
   "name": "pendraw",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n APP,SYNC -c blue,green \"vite --host\" \"node server/sync-server.mjs\"",

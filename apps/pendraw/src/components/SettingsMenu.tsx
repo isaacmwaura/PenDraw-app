@@ -1,4 +1,4 @@
-import {useRef} from "react";
+import {useRef,useState} from "react";
 import {AppearanceSettings} from "../appearance/Appearance";
 import {useDialogFocus} from "./useDialogFocus";
 import type { SyncPrefs } from "../sync/prefs";
@@ -12,6 +12,7 @@ export default function SettingsMenu({
   desktop,
   penMode,
   onPenMode,
+  sharing,sharingBusy,sharingError,onStartSharing,onStopSharing,
 }: {
   open:boolean; onClose:()=>void; onQuality:()=>void;
   prefs: SyncPrefs;
@@ -19,7 +20,11 @@ export default function SettingsMenu({
   desktop: boolean;
   penMode: boolean;
   onPenMode: (b: boolean) => void;
+  sharing: {links:string[]}|null;
+  sharingBusy:boolean;sharingError:string;
+  onStartSharing:()=>Promise<void>;onStopSharing:()=>Promise<void>;
 }) {
+  const [copied,setCopied]=useState('');
   const panel=useRef<HTMLDivElement>(null);
   useDialogFocus(open,panel,onClose);
   return (
@@ -42,6 +47,16 @@ export default function SettingsMenu({
           </p>
           {desktop&&<button className="pd-btn" onClick={()=>{onClose();onQuality()}}>Handwriting quality</button>}
           <div className="pd-settings-title" style={{ marginTop: 14 }}>Network</div>
+          {desktop&&<section aria-label="Share this board">
+            <p className="pd-settings-note">Open this live board in another device's browser on the same Wi-Fi. No Node.js or server installation needed.</p>
+            <button className="pd-btn" disabled={sharingBusy} onClick={()=>void(sharing?onStopSharing():onStartSharing())}>{sharingBusy?'Please wait…':sharing?'Stop sharing':'Start sharing'}</button>
+            {!sharing&&<p className="pd-settings-note">Windows may ask to allow network access. Allow Private networks on trusted Wi-Fi. Anyone with the link can view and edit.</p>}
+            {sharing&&sharing.links.map((link,i)=><div key={link} className="pd-sharing-link"><label className="pd-settings-row col"><span>{i===0?'Sharing link':'Computer-name link (if your network supports it)'}</span><input className="pd-settings-input" readOnly value={link} aria-label={i===0?'Sharing link':'Computer-name sharing link'}/></label><button className="pd-btn" onClick={async()=>{try{await navigator.clipboard.writeText(link);setCopied(link);}catch{setCopied('Select the link and press Ctrl+C.')}}}>{copied===link?'Copied':'Copy link'}</button></div>)}
+            {sharing&&<p className="pd-settings-note">Bookmark the link on the other device. Keep PenDraw open and sharing on. Sharing is off each time you start the app.</p>}
+            {sharingError&&<p role="alert">{sharingError}</p>}
+            {copied.startsWith('Select')&&<p role="status">{copied}</p>}
+          </section>}
+          {!sharing&&<>
           <label className="pd-settings-row">
             <input
               type="checkbox"
@@ -67,6 +82,7 @@ export default function SettingsMenu({
               ? "PenDraw works offline. Turn this on to share a live board with a collaborator running a PenDraw mirror on your network."
               : "Leave the address blank to use this computer's own mirror."}
           </p>
+          </>}
         </div>
       </div>)}
     </>

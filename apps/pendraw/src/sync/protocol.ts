@@ -21,5 +21,8 @@ export function wsUrl(): string {
   // where the sync server runs separately on SYNC_PORT.
   const pagePort = window.location.port;
   const port = !pagePort || pagePort === "5173" ? String(SYNC_PORT) : pagePort;
-  return `${proto}//${window.location.hostname}:${port}`;
+  const query = new URLSearchParams(window.location.search);
+  const key = query.get("key"), session = query.get("session");
+  const access = key && session ? `/ws?${new URLSearchParams({key,session})}` : "";
+  return `${proto}//${window.location.hostname}:${port}${access}`;
 }

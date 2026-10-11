@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.2.3"
+version = "0.2.4"
 description = "PenDraw - pen-first whiteboard (Tauri desktop shell)"
 authors = ["Isaac Mwaura"]
 license = "MIT"
@@ -24,6 +24,13 @@ log = "0.4"
 tauri = { version = "2.11.3", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-dialog = "2"
+axum = { version = "0.8", features = ["ws"] }
+tokio = { version = "1", features = ["net", "sync", "rt", "macros"] }
+futures-util = { version = "0.3", features = ["sink"] }
+rust-embed = "8"
+mime_guess = "2"
+uuid = { version = "1", features = ["v4"] }
+local-ip-address = "0.6"
 
 # Windows handwriting recognition (Windows Ink Analysis / InkAnalyzer).
 # Only compiled on Windows; the .exe calls this in-process.

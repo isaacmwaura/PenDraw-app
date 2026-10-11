@@ -40,7 +40,8 @@ export default function Mirror() {
   }, [status]);
 
   const initialData = useMemo(() => {
-    const saved = loadMirrorScene();
+    // A new host session owns the initial board. Never merge an unrelated cached board into it.
+    const saved = new URLSearchParams(window.location.search).has("session") ? null : loadMirrorScene();
     return saved ? { elements: saved.elements, files: saved.files } : undefined;
   }, []);
 

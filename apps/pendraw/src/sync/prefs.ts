@@ -18,6 +18,8 @@ export function loadSyncPrefs(isDesktop: boolean): SyncPrefs {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const p = JSON.parse(raw);
+      // A built-in host session is temporary. Start sharing deliberately after launch.
+      if (isDesktop && typeof p.address === "string" && p.address.includes("/ws?key=")) return {enabled:false,address:""};
       return { enabled: !!p.enabled, address: typeof p.address === "string" ? p.address : "" };
     }
   } catch {
@@ -41,6 +43,15 @@ export function wsUrlFromAddress(address: string): string {
   const a = (address || "").trim();
   if (!a) return wsUrl();
   if (/^wss?:\/\//i.test(a)) return a;
+  if (/^https?:\/\//i.test(a)) {
+    const link = new URL(a);
+    link.protocol = link.protocol === "https:" ? "wss:" : "ws:";
+    if (link.searchParams.has("key")) {
+      link.pathname = "/ws";
+      link.searchParams.delete("mirror");
+    }
+    return link.toString();
+  }
   const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
   const hostport = a.replace(/^https?:\/\//i, "");
   const withPort = hostport.includes(":") ? hostport : `${hostport}:${SYNC_PORT}`;
