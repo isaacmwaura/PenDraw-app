@@ -7,11 +7,12 @@ type Props = {
   onReconnect: () => void;
   /** Optional: show a "Download backup" button (editor only). */
   onBackup?: () => void;
+  reconnectNote?: string;
 };
 
 // A prominent popup shown when the connection drops. It reassures the user their
 // work is saved locally, and offers a backup download and a manual reconnect.
-export default function ConnectionBanner({ status, everConnected, onReconnect, onBackup }: Props) {
+export default function ConnectionBanner({ status, everConnected, onReconnect, onBackup, reconnectNote }: Props) {
   const show = status === "disconnected" || (everConnected && status === "connecting");
   if (!show) return null;
 
@@ -24,7 +25,7 @@ export default function ConnectionBanner({ status, everConnected, onReconnect, o
         <strong>{disconnected ? "Disconnected from the network" : "Reconnecting…"}</strong>
         <span>
           {disconnected
-            ? "Your work is safely saved in this browser. Trying to reconnect automatically…"
+            ? reconnectNote ?? "Your work is safely saved in this browser. Trying to reconnect automatically…"
             : "Re-establishing the connection…"}
         </span>
       </div>

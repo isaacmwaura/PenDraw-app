@@ -3,7 +3,7 @@ use futures_util::{SinkExt, StreamExt};
 use rust_embed::Embed;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc, Mutex, atomic::{AtomicBool,Ordering}}};
 use tauri::Manager;
 use tokio::sync::mpsc;
 
@@ -32,17 +32,18 @@ impl Hub {
   }
 }
 #[derive(Clone)]
-struct Server { key: String, session: String, hub: Arc<Mutex<Hub>> }
+struct Server { key: String, session: String, hub: Arc<Mutex<Hub>>, stopped: Arc<AtomicBool>, shutdown: tokio::sync::watch::Receiver<bool> }
 #[derive(Default, Deserialize)]
 struct Access { key: Option<String>, session: Option<String> }
 #[derive(Clone, Serialize)]
 #[serde(rename_all="camelCase")]
 pub struct SharingInfo { pub links: Vec<String>, pub socket_url: String }
-struct Running { task: tokio::task::JoinHandle<()>, info: SharingInfo, hub: Arc<Mutex<Hub>> }
+struct Running { task: tokio::task::JoinHandle<()>, info: SharingInfo, hub: Arc<Mutex<Hub>>, stopped:Arc<AtomicBool>, shutdown:tokio::sync::watch::Sender<bool> }
 #[derive(Default)]
 pub struct MirrorHost(Mutex<Option<Running>>);
 
 async fn index(State(server): State<Server>, Query(access): Query<Access>) -> Response {
+  if server.stopped.load(Ordering::Acquire) { return StatusCode::GONE.into_response(); }
   if access.key.as_deref() != Some(&server.key) { return (StatusCode::FORBIDDEN,"Open the sharing link shown inside PenDraw.").into_response(); }
   if access.session.as_deref() != Some(&server.session) { return Redirect::temporary(&format!("/?mirror&key={}&session={}",server.key,server.session)).into_response(); }
   asset("index.html")
@@ -55,16 +56,19 @@ fn asset(path: &str) -> Response {
 }
 async fn static_asset(uri: Uri) -> Response { asset(uri.path().trim_start_matches('/')) }
 async fn upgrade(State(server): State<Server>, Query(access): Query<Access>, ws: WebSocketUpgrade) -> Response {
+  if server.stopped.load(Ordering::Acquire) { return StatusCode::GONE.into_response(); }
   if access.key.as_deref()!=Some(&server.key) || access.session.as_deref()!=Some(&server.session) { return StatusCode::FORBIDDEN.into_response(); }
   ws.max_message_size(32*1024*1024).max_frame_size(32*1024*1024).on_upgrade(move |socket| peer(socket,server))
 }
-async fn peer(socket: WebSocket, server: Server) {
+async fn peer(socket: WebSocket, mut server: Server) {
   let id=uuid::Uuid::new_v4().to_string();
   let (tx,mut rx)=mpsc::channel::<String>(8);
-  { let mut hub=server.hub.lock().unwrap(); tx.try_send(hub.snapshot()).ok(); hub.peers.insert(id.clone(),tx); }
+  { let mut hub=server.hub.lock().unwrap(); if server.stopped.load(Ordering::Acquire){return;} tx.try_send(hub.snapshot()).ok(); hub.peers.insert(id.clone(),tx); }
   let (mut sink,mut source)=socket.split();
   loop {
+    if server.stopped.load(Ordering::Acquire){break;}
     tokio::select! {
+      _=server.shutdown.changed()=>break,
       raw=rx.recv()=>{let Some(raw)=raw else{break};if sink.send(Message::Text(raw.into())).await.is_err(){break}},
       incoming=source.next()=>{
         match incoming {
@@ -102,14 +106,21 @@ pub async fn start_mirror(app: tauri::AppHandle, host: tauri::State<'_,MirrorHos
   if links.is_empty(){links.push(format!("http://127.0.0.1:4000/?mirror&key={key}"));}
   let info=SharingInfo{links,socket_url:format!("ws://127.0.0.1:4000/ws?key={key}&session={session}")};
   let hub=Arc::new(Mutex::new(Hub::default()));
-  let router=Router::new().route("/",get(index)).route("/ws",get(upgrade)).fallback(get(static_asset)).with_state(Server{key,session,hub:hub.clone()});
-  let task=tokio::spawn(async move{axum::serve(listener,router).await.ok();});
-  *running=Some(Running{task,info:info.clone(),hub});
+  let stopped=Arc::new(AtomicBool::new(false));
+  let (shutdown,mut signal)=tokio::sync::watch::channel(false);
+  let router=Router::new().route("/",get(index)).route("/ws",get(upgrade)).fallback(get(static_asset)).with_state(Server{key,session,hub:hub.clone(),stopped:stopped.clone(),shutdown:signal.clone()});
+  let task=tokio::spawn(async move{axum::serve(listener,router).with_graceful_shutdown(async move{signal.changed().await.ok();}).await.ok();});
+  *running=Some(Running{task,info:info.clone(),hub,stopped,shutdown});
   Ok(info)
 }
 #[tauri::command]
-pub fn stop_mirror(host: tauri::State<'_,MirrorHost>) -> Result<(),String> {
-  if let Some(running)=host.0.lock().map_err(|_|"Sharing state unavailable")?.take(){running.task.abort();running.hub.lock().unwrap().peers.clear();}
+pub async fn stop_mirror(host: tauri::State<'_,MirrorHost>) -> Result<(),String> {
+  let running={host.0.lock().map_err(|_|"Sharing state unavailable")?.take()};
+  if let Some(mut running)=running {
+    running.stopped.store(true,Ordering::Release);
+    running.shutdown.send(true).ok();running.hub.lock().unwrap().peers.clear();
+    if tokio::time::timeout(std::time::Duration::from_secs(3),&mut running.task).await.is_err(){running.task.abort();}
+  }
   Ok(())
 }
 #[cfg(test)]

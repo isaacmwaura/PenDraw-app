@@ -6,6 +6,7 @@ $scratch = Join-Path (Get-Location) '.cache/webview-package'
 New-Item -ItemType Directory -Force $scratch | Out-Null
 $cab = Join-Path $scratch 'runtime.cab'
 Invoke-WebRequest $url -OutFile $cab
+if ((Get-FileHash $cab -Algorithm SHA256).Hash -ne 'EC533BF1B7354D288703CF821A2D640D0130108224F93E330BB9C09FAF3F8010') { throw 'WebView2 download checksum mismatch' }
 $unpacked = Join-Path $scratch 'unpacked'
 New-Item -ItemType Directory -Force $unpacked | Out-Null
 & expand.exe $cab '-F:*' $unpacked | Out-Null

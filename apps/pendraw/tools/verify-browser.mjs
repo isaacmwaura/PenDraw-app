@@ -13,6 +13,7 @@ import sirv from "sirv";
 
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const root = path.resolve(app, "../..");
+const expectedVersion = JSON.parse(await fs.readFile(path.join(app,'package.json'),'utf8')).version;
 const cache = path.join(root, ".cache", "browser-check");
 const profile = path.join(cache, `profile-${Date.now()}`);
 const browserPath = process.env.PENDRAW_BROWSER ?? "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe";
@@ -399,7 +400,7 @@ try {
   await click('[aria-label="Pen 1"]');
   await fileAction('About PenDraw');
   assert(await evaluate("document.querySelector('[aria-label=\"About PenDraw\"]').contains(document.activeElement)"));
-  assert(await evaluate("document.querySelector('[aria-label=\"About PenDraw\"]').textContent.includes('PenDraw 0.2.3') && document.querySelector('[aria-label=\"About PenDraw\"]').textContent.includes('MIT License')"));
+  assert(await evaluate(`document.querySelector('[aria-label="About PenDraw"]').textContent.includes(${JSON.stringify('PenDraw '+expectedVersion)}) && document.querySelector('[aria-label="About PenDraw"]').textContent.includes('MIT License')`));
   await evaluate("[...document.querySelectorAll('[aria-label=\"About PenDraw\"] button')].find(b=>b.textContent==='Close').click()");
   checked('ribbon replaces native controls, applies editable pen/highlighter presets and shows version/licence');
   await tab('view');

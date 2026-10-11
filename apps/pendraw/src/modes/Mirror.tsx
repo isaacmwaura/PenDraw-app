@@ -6,7 +6,7 @@ import Board from "../board/Board";
 import ConnectionBanner from "../components/ConnectionBanner";
 import StrokeWidthSlider from "../components/StrokeWidthSlider";
 import { usePeerSync } from "../sync/usePeerSync";
-import { loadMirrorScene } from "../storage/persistence";
+import { loadMirrorScene,downloadBackup } from "../storage/persistence";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 // The mirror is now editable (two-way). It still follows the presenter's view
@@ -17,6 +17,7 @@ export default function Mirror() {
   const closeSettings=useCallback(()=>setSettings(false),[]);usePopover(settings,wrapper,panel,closeSettings);
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [lockToPresenter, setLockToPresenter] = useState(true);
+  const nativeHost = new URLSearchParams(window.location.search).has('session');
   const mountedAt = useRef(Date.now());
 
   // Auto-pause following: when the viewer actually draws on a locked mirror,
@@ -82,7 +83,7 @@ export default function Mirror() {
         <WindowControls/>
       </div>
       <div className="pd-canvas">
-        <ConnectionBanner status={status} everConnected={everConnected} onReconnect={reconnectNow} />
+        <ConnectionBanner status={status} everConnected={everConnected} onReconnect={()=>nativeHost?window.location.reload():reconnectNow()} onBackup={()=>{if(apiRef.current)downloadBackup(apiRef.current)}} reconnectNote={nativeHost?'The board remains visible here. Download a backup before reconnecting to a restarted host.':undefined}/>
         {!lockToPresenter && (
           <div className="pd-freelook-badge">🔎 Free look — you are viewing independently</div>
         )}
