@@ -25,8 +25,6 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run test:browser
-      - run: cargo generate-lockfile
-        working-directory: apps/pendraw/src-tauri
       - uses: actions/upload-artifact@v4
         with:
           name: native-lockfile
@@ -63,4 +61,5 @@ jobs:
             .cache/release/PenDraw.exe
             .cache/release/PenDraw.exe.sha256
             .cache/release/licenses/
+            .cache/release/THIRD_PARTY_NOTICES.md
             .cache/PenDraw-0.2.4-windows.zip
