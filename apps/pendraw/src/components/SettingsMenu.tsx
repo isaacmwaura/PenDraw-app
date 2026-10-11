@@ -56,7 +56,7 @@ export default function SettingsMenu({
             {sharingError&&<p role="alert">{sharingError}</p>}
             {copied.startsWith('Select')&&<p role="status">{copied}</p>}
           </section>}
-          {!sharing&&<>
+          {!sharing&&<details><summary>Advanced: connect to a developer-hosted relay</summary>
           <label className="pd-settings-row">
             <input
               type="checkbox"
@@ -82,7 +82,7 @@ export default function SettingsMenu({
               ? "PenDraw works offline. Turn this on to share a live board with a collaborator running a PenDraw mirror on your network."
               : "Leave the address blank to use this computer's own mirror."}
           </p>
-          </>}
+          </details>}
         </div>
       </div>)}
     </>

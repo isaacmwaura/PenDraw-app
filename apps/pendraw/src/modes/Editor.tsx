@@ -392,7 +392,9 @@ export default function Editor() {
   }, []);
 
   const selectionBounds=(()=>{const api=apiRef.current;if(!api)return undefined;const state=api.getAppState();const selected=api.getSceneElements().filter(e=>state.selectedElementIds[e.id]);if(!selected.length)return undefined;const [x,y,right,bottom]=getCommonBounds(selected);const tl=sceneToClient(x,y,state),br=sceneToClient(right,bottom,state);return {left:tl.x,top:tl.y,right:br.x,bottom:br.y};})();
-  const connectionText=status==='connected'?'Connected to mirror':status==='connecting'?'Connecting to mirror…':'Mirror disconnected';
+  const connectionText=sharing
+    ? status==='connected'?'Sharing this board':status==='connecting'?'Starting sharing…':'Sharing connection lost'
+    : status==='connected'?'Connected to mirror':status==='connecting'?'Connecting to mirror…':'Mirror disconnected';
   const dotClass =
     status === "connected"
       ? "on"

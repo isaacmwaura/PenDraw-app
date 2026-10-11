@@ -51,7 +51,7 @@ try{
  text('Ideas start as ink.',115,580,26,'#2563eb');
  elements.push(base('rectangle',725,480,430,145,{backgroundColor:'#f1f3f5',roundness:{type:3}}));text('Same Wi-Fi • no account',750,508,24);text('Keep the Windows app open',750,554,20,'#5f6b7b');
  await editor.evalJS(`window.__pdApi.updateScene({elements:${JSON.stringify(elements)},appState:{scrollX:0,scrollY:0,zoom:{value:1}}})`);
- await editor.click('PenDraw menu');await editor.click('Settings');await editor.click('Start sharing');
+ await editor.click('PenDraw menu');await editor.click('Settings');await editor.shot('settings-sharing');await editor.click('Start sharing');
  await editor.wait('!!document.querySelector("[aria-label=\"Sharing link\"]")&&document.querySelector(".pd-status")?.dataset.status==="connected"');
  const info=await editor.evalJS('window.__TAURI_INTERNALS__.invoke("start_mirror")');
  const socketURL=new URL(info.socketUrl), key=socketURL.searchParams.get('key');
