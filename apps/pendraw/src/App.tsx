@@ -3,6 +3,7 @@ import {AppearanceProvider} from "./appearance/Appearance";
 import Editor from "./modes/Editor";
 import Mirror from "./modes/Mirror";
 import { installDesktopBehaviors } from "./desktop/setup";
+import RuntimeTerms from './legal/RuntimeTerms';
 
 // Mode is chosen by the URL:
 //   http://<host>:<port>/          -> Editor (the presenter draws here)
@@ -13,5 +14,5 @@ export default function App() {
     [],
   );
   useEffect(() => installDesktopBehaviors(), []);
-  return <AppearanceProvider>{isMirror ? <Mirror /> : <Editor />}</AppearanceProvider>;
+  return <AppearanceProvider><RuntimeTerms>{isMirror ? <Mirror /> : <Editor />}</RuntimeTerms></AppearanceProvider>;
 }

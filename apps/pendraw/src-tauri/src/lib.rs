@@ -2,6 +2,9 @@ mod files;
 mod handwriting;
 mod mirror;
 
+#[tauri::command]
+fn bundled_runtime() -> bool { std::env::var_os("PENDRAW_BUNDLED_RUNTIME").is_some() }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   // The portable release carries its own browser engine beside the executable.
@@ -18,6 +21,7 @@ pub fn run() {
             .args(["/grant", sid]).creation_flags(0x08000000).output();
         }
         std::env::set_var("WEBVIEW2_BROWSER_EXECUTABLE_FOLDER", runtime);
+        std::env::set_var("PENDRAW_BUNDLED_RUNTIME", "1");
       }
     }
   }
@@ -39,7 +43,8 @@ pub fn run() {
       files::read_text_file,
       files::write_text_file,
       mirror::start_mirror,
-      mirror::stop_mirror
+      mirror::stop_mirror,
+      bundled_runtime
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
