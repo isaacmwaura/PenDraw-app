@@ -69,6 +69,10 @@ try{
  await mirror.rpc('Page.navigate',{url:bookmark});await mirror.wait('!!window.__pdApi&&window.__pdApi.getSceneElements().length>=17');
  assert.equal(await mirror.evalJS('document.querySelector(".pd-status").textContent'),'connected');
  check('browser mirror loads the existing desktop drawing without a Node server');
+ await mirror.rpc('Network.enable');await mirror.rpc('Network.setBlockedURLs',{urls:['https://*']});
+ const font=await fetch('http://127.0.0.1:4000/fonts/Cascadia/CascadiaCode-Regular.woff2');assert.equal(font.status,200);assert.equal(Buffer.from(await font.arrayBuffer()).subarray(0,4).toString(),'wOF2');
+ assert.equal(await mirror.evalJS(`new FontFace('PenDrawOfflineTest','url(/fonts/Cascadia/CascadiaCode-Regular.woff2)').load().then(f=>f.status)`),'loaded');
+ check('bundled font is served and decoded locally with external HTTPS requests blocked');
  await editor.shot('windows-board');await mirror.shot('browser-mirror');
  // Real bidirectional edits and presenter following.
  await delay(1700);const note=base('text',108,665,600,32,{text:'Added from the browser — visible on Windows too',originalText:'Added from the browser — visible on Windows too',fontSize:24,fontFamily:2,textAlign:'left',verticalAlign:'top',containerId:null,autoResize:true,lineHeight:1.25,strokeColor:'#2b8a3e'});

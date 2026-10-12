@@ -2,7 +2,7 @@
 
 PenDraw's mirror is intended for a trusted local network. Built-in desktop sharing requires a random access key in its browser link. Anyone with that link and network access can view and edit the board. A fresh session identifier prevents old sockets joining a restarted host; bookmarks resolve to the new session. Neither the key nor the session makes plain HTTP encrypted. Do not expose sharing to the internet or forward port 4000 from your router.
 
-Sharing is opt-in, starts off each launch, and stops on Stop sharing, New/Open or process exit. Only the shared scene and embedded browser assets are served; there is no general filesystem route. The optional developer Node relay still has no authentication. Use it only on a trusted network.
+Sharing is opt-in, starts off each launch, and stops on Stop sharing, New/Open or process exit. The access key persists for bookmarks, so someone with an old link can join future sessions when sharing is enabled. Only the shared scene and embedded browser assets are served; there is no general filesystem route. The optional developer Node relay still has no authentication. Use it only on a trusted network.
 
 The portable Windows package includes a pinned Microsoft WebView2 fixed runtime. It does not update itself. Install newer PenDraw packages to receive runtime updates. The included runtime uses Microsoft's separate license and privacy terms and contains SmartScreen protection.
 

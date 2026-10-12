@@ -11,7 +11,7 @@ npm run build
 npm start
 ```
 
-`npm ci` installs the versions recorded in package-lock.json. The build produces `apps/pendraw/dist`. The server prints local editor and mirror addresses. `npm run dev` starts development servers instead.
+`npm ci` installs the versions recorded in package-lock.json. The build produces `apps/pendraw/dist`, including the engine's local font assets. Vite prepares them under the ignored `.cache/frontend-public` directory from the installed package; no private or manually supplied assets are needed. The server prints local editor and mirror addresses. `npm run dev` starts development servers instead.
 
 ## Windows desktop
 
@@ -24,7 +24,7 @@ npm ci
 $env:CARGO_BUILD_JOBS = '2'
 $env:CARGO_TARGET_DIR = Join-Path (Get-Location) '.cache/native-target'
 Set-Location apps/pendraw
-npx tauri build --no-bundle --ci -- -j 2
+npx tauri build --no-bundle --ci -- --locked -j 2
 ```
 
 The executable is `.cache/native-target/release/PenDraw.exe` relative to the repository root. The frontend and built-in sharing server are embedded in it. A fresh build needs internet access to download dependencies; do not use offline mode until those dependencies are cached. Node.js is needed for development and the optional Node relay. The complete Windows release hosts its own mirror; end users do not need Node.js.
