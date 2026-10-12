@@ -1,48 +1,96 @@
 # PenDraw
 
-A pen-first whiteboard for Windows, with a browser version and a live, editable mirror on another computer.
+**Sketch on Windows. Share the same board in a browser.**
 
-PenDraw is based on the [Excalidraw drawing engine](https://github.com/excalidraw/excalidraw), which is MIT licensed. PenDraw adds a Windows desktop shell, pen and touch controls, Windows handwriting recognition, and local-network mirroring. It is an independent project, not an official Excalidraw release.
+A free, pen-first whiteboard for notes, diagrams and explaining ideas together. Draw with a pen or mouse. On a pen-and-touch device, use fingers to move around the board.
 
-Draw with three saved pens and a highlighter. Add shapes, text boxes and images. Select and move objects, fill clear closed outlines, and export selections as PNG images. The compact Draw / Insert / View ribbon collapses when you need more drawing space.
+[**Download the complete Windows app**](https://github.com/isaacmwaura/PenDraw-app/releases/download/v0.2.4/PenDraw-0.2.4-windows.zip) · [Release notes](https://github.com/isaacmwaura/PenDraw-app/releases/tag/v0.2.4) · [Build from source](BUILDING.md)
 
-## Download and open
+![PenDraw Windows app with an example planning board](docs/images/windows-board.png)
 
-[Download PenDraw v0.2.3 for Windows](https://github.com/isaacmwaura/PenDraw-app/releases/download/v0.2.3/PenDraw-0.2.3-windows.zip) · [Release notes and checksum](https://github.com/isaacmwaura/PenDraw-app/releases/tag/v0.2.3)
+*Actual app screenshot with a synthetic example board.*
 
-Version 0.2.3 is a portable Windows executable: download the ZIP, extract it to a folder, and open `PenDraw-0.2.3.exe`. Keep the accompanying license files with it. No installer is required. The desktop app uses Microsoft WebView2; install the [Evergreen WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if it is missing.
+PenDraw is based on the [MIT-licensed Excalidraw drawing engine](https://github.com/excalidraw/excalidraw). It adds a Windows desktop app, pen and touch controls, Windows handwriting recognition, and built-in local-network sharing. PenDraw is an independent project, not an official Excalidraw release.
 
-This release is not digitally signed. Windows may show an unrecognized-app warning because the download has not established a trusted reputation. Download only from this project's official release page and compare the SHA-256 checksum supplied with the release. A matching checksum confirms file identity, not that software is harmless. If you trust the download and SmartScreen offers **More info → Run anyway**, that allows this particular app to open. Do not disable Windows security. Smart App Control or an organization's policy may block it without that option; contact your administrator rather than bypassing policy. See [Microsoft's explanation](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+## Open it in three steps
 
-## Use your board
+1. Download the Windows ZIP above. This release is for **64-bit Windows 10/11 on an Intel or AMD PC**.
+2. Right-click the ZIP → **Extract All**. Keep the extracted files together in a local folder.
+3. Open **PenDraw.exe**. On first launch, review the terms for Microsoft's included browser engine and select **Agree and open** to continue.
 
-- **Draw:** choose a saved pen, highlighter, shape, selection, lasso or eraser. On a pen-and-touch device, Pen mode routes the pen to drawing and fingers to navigation.
-- **Insert:** drag a text box, add an image or fill a clear closed outline. Resizing a text box wraps its words without changing font size.
-- **View:** select guides, fit the board, return to 100% zoom, or enable held-line straightening. F11 gives the canvas more room.
-- **Menu:** open/save `.excalidraw` drawings, manage the Library, export PNG, or change appearance and sharing settings.
-- **Ink to text (Windows desktop):** select handwriting, inspect the recognition preview, and keep any unwanted blocks as ink before converting. Accuracy depends on handwriting and installed Windows recognition support.
+**No Node.js, terminal commands, separate browser-engine download or installer is needed.** The ZIP includes the executable, its browser engine and license notices. It is larger than earlier downloads for this reason. Open the extracted app, not the EXE inside the ZIP. Keep the `WebView2` folder beside `PenDraw.exe`. You can create a desktop shortcut or pin the executable to Start for quicker access.
 
-Local recovery and named files are separate. Recovery keeps a local copy of your board; use **Save** to update a named drawing file. Recovery, Library and preferences belong to this device and do not transfer automatically.
+### If Windows flags the download
 
-## Mirror a board to another computer
+PenDraw is currently **unsigned**. Windows may show an unrecognized-app warning. Download from this repository's official release page. If you trust that download and SmartScreen offers **More info → Run anyway**, use it for this app. Do not disable Windows security. If your organization or Smart App Control blocks it without that option, follow your administrator's policy. The release also supplies a SHA-256 checksum to compare file identity. A matching checksum is not a safety certification. [Microsoft explains these warnings](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 
-Both computers must be on the same trusted local network. On the host computer, install [Node.js](https://nodejs.org/) with npm, download the source, and run:
+## What can I do with it?
 
-```sh
-npm ci
-npm start
-```
+| Task | Where to find it |
+|---|---|
+| Write and sketch | **Draw** → three saved pens and a highlighter. Each has its own colour and width. |
+| Create a diagram | **Draw** → rectangles, ellipses, diamonds, lines and arrows. |
+| Add typed notes or a picture | **Insert** → drag a text box or add an image. Text boxes wrap when resized. |
+| Colour a closed outline | **Insert** → fill. Clear, closed outlines work best. |
+| Rearrange or reuse part of a board | Select objects, then open their context menu. Move, duplicate, delete, change layers or export. |
+| Turn handwriting into typed text | Select ink → **Ink to text** → inspect the preview → convert. Keep unwanted blocks as ink. Windows desktop only; accuracy depends on your handwriting and available Windows recognition support. |
+| Make more drawing room | Collapse the ribbon, or use **F11** for full screen. |
+| Save or export | **Menu** → Save/Save As for an editable `.excalidraw` file. Export PNG for an image. |
 
-Keep the server window open. It prints the drawing address for the other computer and the mirror address for this computer. Open those addresses in the two browsers. Both views can edit the board. **Lock to presenter** follows the editor's view; **Free look** lets the mirror navigate independently.
+**Recovery is a safety net, not a named file.** The app keeps a local recovery copy, but use **Save** when you want a drawing file to keep or send. Library items, recovery and preferences stay on that device.
 
-To connect the Windows desktop app, open **Menu → Settings**, enable **Connect to a contributor mirror**, and enter the host's address, such as `192.168.1.50:4000`.
+## Share the board live
 
-The first server launch may show a Windows firewall prompt. Allow Node.js on **Private networks** only when you intend to share on a trusted network. The relay has no sign-in or encrypted transport by default. Anyone able to reach it can join and edit the shared board. Do not expose it to the public internet. Stop sharing by closing the server and disabling the desktop connection. Save your board before replacing it with New/Open.
+![Three steps: start sharing in Windows, copy the link, open it in another device's browser on the same Wi-Fi](docs/images/sharing-flow.svg)
 
-## Build from source
+1. Connect the Windows PC and the other device to the **same trusted Wi-Fi or local network**.
+2. In PenDraw, open **Menu → Settings → Network → Start sharing**.
+3. Select **Copy link**, send the link to your other device or collaborator, and open it in an existing browser. Keep PenDraw open and sharing on.
 
-See [BUILDING.md](BUILDING.md) for browser and Windows builds, prerequisites and verification.
+**The Windows app hosts the mirror itself.** The other device only needs a browser. There is no account, cloud server or Node.js installation in this flow.
 
-## License
+| Windows app | Browser mirror |
+|---|---|
+| ![Windows editor presenting a live board](docs/images/windows-board.png) | ![Connected editable browser mirror showing the same board](docs/images/browser-mirror.png) |
+| Draw and present from the PC. | Watch or contribute from another browser. |
 
-PenDraw is licensed under the [MIT License](LICENSE). You may use, modify, redistribute and sell copies, provided the required copyright and license notices are retained. Third-party components retain their own licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and `licenses/` for bundled attribution and license texts.
+The mirror is **editable**, so a collaborator can add to the same board. **Lock to presenter** follows the PC's pan and zoom. Turn it off for **Free look** to navigate independently. Drawing on the mirror also switches it to Free look.
+
+![A contribution made in the browser mirror, synchronized back to the Windows app](docs/images/mirror-contribution.png)
+
+*This note was added in the browser and verified to appear in the Windows app too.*
+
+### Make returning easier
+
+- **Bookmark the sharing link** in the browser. You can also create a browser shortcut or add it to the device's home screen where supported. Open PenDraw and start sharing again before using it.
+- Settings also offers a **computer-name link**. If your network resolves computer names, that link can keep working when the PC's numeric Wi-Fi address changes. Try it once before bookmarking it.
+- If the numeric address changes, stop and start sharing, then copy the new link from Settings. After restarting sharing, refresh the mirror page to join the new session. Save any offline edits or use **Download backup** before reconnecting.
+- Keep the PC awake during a session. Sharing ends when you select **Stop sharing**, use **New/Open**, or close PenDraw. It starts off each time you launch the app.
+
+### Windows network access and connection problems
+
+The first **Start sharing** may trigger a Windows firewall prompt. Allow **PenDraw on Private networks** when using trusted Wi-Fi. You do not need to allow Public networks for this use. Guest Wi-Fi often prevents devices from reaching each other. A VPN or organization policy may also block the connection. If a link fails, check those conditions and try the numeric sharing link.
+
+Sharing links grant **view and edit access** to anyone who has them and can reach the host. Reusable links remain valid for future sessions whenever sharing is on. Local sharing is not encrypted. Keep links private and do not forward port 4000 from your router or expose the host to the internet. [Security details](SECURITY.md).
+
+## Configure your workspace
+
+![PenDraw Settings showing appearance, pen mode and the Start sharing button](docs/images/settings-sharing.png)
+
+| Setting | What it changes |
+|---|---|
+| **Settings → Appearance** | Light, Dark or the device's theme. Choose whether to open in full screen. |
+| **Settings → Pen mode** | The pen draws while fingers navigate on a pen-and-touch device. Mouse use still works. |
+| **Pen dropdowns** | Save a colour and width for each pen and the highlighter. |
+| **View → Guides** | Add drawing guides and adjust spacing. |
+| **View → Straighten** | Straighten a long, nearly straight stroke held before release. Short handwriting stays ink. |
+| **Settings → Handwriting quality** | Record sample handwriting and compare Windows recognition results. |
+| **Settings → Network** | Start/stop built-in sharing and copy the link. The contributor connection is an optional advanced flow for the developer-hosted relay. |
+
+## Source and licenses
+
+For installation of developer tools, source builds, the optional Node relay and automated checks, see [BUILDING.md](BUILDING.md). Those tools are **for developers**, not required by the complete Windows download.
+
+PenDraw's source is [MIT licensed](LICENSE). You may use, modify, redistribute and sell copies while retaining the required notices. Dependencies retain their own licenses. The complete Windows package includes proprietary **Microsoft WebView2** under its [separate terms](licenses/Microsoft-WebView2/LICENSE.txt). Those terms do not replace the source's MIT license. Distributors must preserve the runtime's terms and required notices.
+
+The included runtime contains Microsoft Defender SmartScreen and collects and sends user information to Microsoft as described in the [Microsoft privacy statement](https://aka.ms/privacy) and [SmartScreen privacy explanation](https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen). Fixed runtime updates arrive with new PenDraw packages; keep the app updated. See [third-party notices](THIRD_PARTY_NOTICES.md).

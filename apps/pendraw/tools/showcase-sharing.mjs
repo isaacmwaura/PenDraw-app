@@ -56,6 +56,7 @@ try{
  await editor.evalJS(`window.__pdApi.updateScene({elements:${JSON.stringify(elements)},appState:{scrollX:0,scrollY:0,zoom:{value:1}}})`);
  await editor.click('PenDraw menu');await editor.click('Settings');await editor.shot('settings-sharing');await editor.click('Start sharing');
  await editor.wait(`!!document.querySelector('[aria-label="Sharing link"]')&&document.querySelector('.pd-status')?.dataset.status==='connected'`);
+ await editor.click('Copy link');await editor.wait(`[...document.querySelectorAll('button')].some(b=>b.textContent==='Copied')`);check('native sharing button copies its link successfully');
  const info=await editor.evalJS('window.__TAURI_INTERNALS__.invoke("start_mirror")');
  const socketURL=new URL(info.socketUrl), key=socketURL.searchParams.get('key');
  const bookmark=`http://127.0.0.1:4000/?mirror&key=${key}`;
