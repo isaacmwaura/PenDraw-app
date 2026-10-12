@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
-import {spawn} from 'node:child_process';
+import {spawn,execFileSync} from 'node:child_process';
 import {WebSocket} from 'ws';
 const root=process.cwd(), cache=path.join(root,'.cache/showcase'), out=path.join(root,'docs/images');
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
@@ -37,6 +37,9 @@ try{
  if(await editor.evalJS(`!!document.querySelector('[aria-label="Bundled browser terms"]')`)){await editor.click('Agree and open');check('complete portable package presents bundled runtime terms once');}
  await editor.rpc('Emulation.setDeviceMetricsOverride',{width:1280,height:820,deviceScaleFactor:1,mobile:false});
  await editor.wait('!!window.__pdApi');
+ const shell=path.join(process.env.SystemRoot??'C:/Windows','System32/WindowsPowerShell/v1.0/powershell.exe');
+ const bundled=execFileSync(shell,['-NoProfile','-Command',`[bool](Get-CimInstance Win32_Process -Filter "name='msedgewebview2.exe'" | Where-Object {$_.ExecutablePath -eq $env:TASK_PENDRAW_RUNTIME})`],{encoding:'utf8',windowsHide:true,env:{...process.env,TASK_PENDRAW_RUNTIME:path.join(path.dirname(exe),'WebView2/msedgewebview2.exe')}}).trim();
+ assert.equal(bundled,'True');check('app runs the bundled browser executable rather than requiring an installed runtime');
  assert.equal(await editor.evalJS('!!document.querySelector(".pd-status")'),false);
  check('sharing starts off in the real executable');
  let seq=0;const elements=[];
@@ -60,6 +63,7 @@ try{
  assert.equal((await fetch('http://127.0.0.1:4000/?mirror&key=wrong')).status,403);
  const response=await fetch(bookmark);assert.equal(response.status,200);assert(new URL(response.url).searchParams.has('session'));
  check('built-in host serves its embedded app, rejects missing/wrong access keys and resolves a stable bookmark');
+ const owner=execFileSync(shell,['-NoProfile','-Command','(Get-NetTCPConnection -LocalPort 4000 -State Listen).OwningProcess'],{encoding:'utf8',windowsHide:true}).trim();assert.equal(Number(owner),native.pid);check('sharing listener belongs to the compiled app process');
  await editor.click('Close settings');
  const browserProfile=path.join(profiles,'browser');
  browser=spawn(process.env.PENDRAW_BROWSER??'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',['--headless=new','--disable-gpu','--no-first-run','--disable-extensions','--remote-debugging-port=0',`--user-data-dir=${browserProfile}`,'about:blank'],{windowsHide:true,stdio:'ignore'});
